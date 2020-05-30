@@ -101,9 +101,9 @@
      - cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
      - chown vagrant:vagrant /home/vagrant/.kube/config
 
-  - name: Copy the join command to server location
+  - name: Copy the calico config from repo
     copy:
-      src: ~/infrastructure_scripts/vagrant/kubernetes-libvirt/kubernetes-setup/files/calico.yaml
+      src: calico.yaml
       dest: /tmp/calico.yaml
       mode: 0777
 
