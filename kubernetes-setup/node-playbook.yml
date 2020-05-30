@@ -93,7 +93,7 @@
 
   - name: Copy the join command to server location
     copy: 
-      src: ~/infrastructure_scripts/vagrant/kubernetes-libvirt/kubernetes-setup/files/join-command 
+      src: join-command 
       dest: /tmp/join-command.sh 
       mode: 0777
       
