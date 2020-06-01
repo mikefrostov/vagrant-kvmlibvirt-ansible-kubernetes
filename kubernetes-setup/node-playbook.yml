@@ -15,6 +15,12 @@
       - gnupg-agent
       - software-properties-common
 
+  - name: change default route
+    command: route add default gw 192.168.1.1 eth1
+
+  - name: delete vagrant default route
+    command: route del default gw 192.168.121.1 eth0
+
   - name: Add an apt signing key for Docker
     apt_key:
       url: https://download.docker.com/linux/ubuntu/gpg
@@ -96,7 +102,15 @@
       src: join-command 
       dest: /tmp/join-command.sh 
       mode: 0777
-      
+
+  - name: create calico folders
+    become: true
+    command: mkdir -p /var/lib/calico/
+
+
+  - name: echo hostname to calico nodename
+    become: true
+    command: echo $HOSTNAME >> /var/lib/calico/nodename      
 
   - name: Join the node to cluster
     command: sh /tmp/join-command.sh
