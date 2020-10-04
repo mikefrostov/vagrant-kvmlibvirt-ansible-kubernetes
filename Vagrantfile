@@ -6,7 +6,6 @@ Vagrant.configure("2") do |config|
     config.vm.provider :libvirt do |libvirt|
         libvirt.memory = 8192
         libvirt.cpus = 4
-        libvirt.cputopology :sockets => '2', :cores => '2', :threads => '1'
         libvirt.storage :file, :size => '50G'
     end
       
