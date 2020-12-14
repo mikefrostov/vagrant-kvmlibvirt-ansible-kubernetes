@@ -122,6 +122,10 @@
     become: true
     command: mkdir -p /var/lib/calico/
 
+  - name:  Setup local storage folder
+    command: "{{ item }}"
+    with_items:
+     - mkdir -p /data/volumes/pv1                                                                                                                                                                                                     - chmod 777 /data/volumes/pv1
 
   - name: echo hostname to calico nodename
     become: true

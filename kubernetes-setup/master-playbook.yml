@@ -122,6 +122,12 @@
      - cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
      - chown vagrant:vagrant /home/vagrant/.kube/config
 
+  - name:  Setup local storage folder
+    command: "{{ item }}"
+    with_items:
+     - mkdir -p /data/volumes/pv1
+     - chmod 777 /data/volumes/pv1
+
   - name: Copy the calico config from repo
     copy:
       src: calico.yaml
