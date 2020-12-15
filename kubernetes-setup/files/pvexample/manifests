@@ -64,3 +64,28 @@ spec:
     - name: www-persistent-storage
       persistentVolumeClaim:
         claimName: my-claim
+
+vagrant@k8s-master:~$ cat persistentVolume2.yaml
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: my-local-pv2
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: my-local-storage
+  local:
+    path: /mnt/disk/vol2
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - node-1
+          - node-2
+          - k8s-master
