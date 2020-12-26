@@ -21,6 +21,11 @@
   - name: delete vagrant default route
     command: route del default gw 192.168.121.1 eth0
 
+  - name: add default gw to /etc/network/interfaces
+    lineinfile:
+      path: /etc/network/interfaces
+      line: '      gateway 192.168.1.1'
+
   - name: add k8s-master to /etc/hosts
     lineinfile:
       path: /etc/hosts
