@@ -127,10 +127,11 @@
     become: true
     command: mkdir -p /var/lib/calico/
 
-  - name:  Setup local storage folder
+  - name:  create folder of persistent volume
     command: "{{ item }}"
     with_items:
-     - mkdir -p /data/volumes/pv1                                                                                                                                                                                                     - chmod 777 /data/volumes/pv1
+     - mkdir -p /home/vagrant/pv1
+     - chmod 777 /home/vagrant/pv1
 
   - name: echo hostname to calico nodename
     become: true
