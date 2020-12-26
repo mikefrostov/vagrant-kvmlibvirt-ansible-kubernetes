@@ -117,6 +117,15 @@
       daemon_reload: yes
       state: restarted
 
+#  - name: A helpful reminder of what to look out for post-update
+#    pause:
+#      minutes: 5
+#      prompt: "waiting for join-command is generated"
+
+#  - name: Wait until the file join-command is present before continuing
+#    wait_for:
+#      path: join-command
+
   - name: Copy the join command to server location
     copy: 
       src: join-command 
