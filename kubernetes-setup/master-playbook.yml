@@ -163,7 +163,17 @@
   - name: Copy join command to local file
     local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./files/join-command"
 
+  - name: Copy storageclass.yml
+    copy:
+      src: storageclass.yaml
+      dest: /home/vagrant/storageclass.yaml
+      mode: 0777
 
+  - name: Copy presistentvolume.yml
+    copy:
+      src: storageclass.yaml
+      dest: /home/vagrant/persistentvolume.yaml
+      mode: 0777
 
   handlers:
   - name: docker status
