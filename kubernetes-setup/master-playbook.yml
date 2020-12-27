@@ -1,4 +1,5 @@
 ---
+
 - hosts: all
   become: true
   tasks:
@@ -31,17 +32,17 @@
   - name: add k8s-master to /etc/hosts
     lineinfile:
       path: /etc/hosts
-      line: 192.168.1.170 k8s-master
+      line: 192.168.1.170 k8s-master k8s-master
 
   - name: add node-1 to /etc/hosts
     lineinfile:
       path: /etc/hosts
-      line: 192.168.1.171 node-1
+      line: 192.168.1.171 node-1 node-1
 
   - name: add node-2 to /etc/hosts
     lineinfile:
       path: /etc/hosts
-      line: 192.168.1.172 node-2
+      line: 192.168.1.172 node-2 node-2
 
   - name: Add an apt signing key for Docker
     apt_key:
@@ -120,7 +121,10 @@
       state: restarted
 
   - name: Initialize the Kubernetes cluster using kubeadm
-    command: kubeadm init --apiserver-advertise-address="192.168.1.170" --apiserver-cert-extra-sans="192.168.1.170"  --node-name k8s-master --pod-network-cidr=192.168.0.0/16
+    command: kubeadm init --apiserver-advertise-address="192.168.1.170" --apiserver-cert-extra-sans="192.168.1.170"  --node-name k8s-master --pod-network-cidr=10.244.0.0/16
+
+#this is for calico, tried 192.168.0.1/16 and 10.10.0.0/16, wouldn't work with metalLB, second NIC eth1 and local network of 192.168.1.1
+#    command: kubeadm init --apiserver-advertise-address="192.168.1.170" --apiserver-cert-extra-sans="192.168.1.170"  --node-name k8s-master --pod-network-cidr=10.10.0.0/16
 
   - name: Setup kubeconfig for vagrant user
     command: "{{ item }}"
@@ -135,26 +139,36 @@
      - mkdir -p /home/vagrant/pv1
      - chmod 777 /home/vagrant/pv1
 
-  - name: Copy the calico config from repo
+  - name: copy flannel yaml to the server
     copy:
-      src: calico.yaml
-      dest: /tmp/calico.yaml
+      src: flannel.yaml
+      dest: /home/vagrant/flannel.yaml
       mode: 0777
 
-  - name: create calico folders
-    become: true
-    command: mkdir -p /var/lib/calico/
-
-
-  - name: echo hostname to nodename
-    become: true
-    command: echo $HOSTNAME >> /var/lib/calico/nodename
-
-
-  - name: Install calico pod network
+  - name: Install flannel
     become: false
-    command: kubectl create -f /tmp/calico.yaml
+    command: kubectl create -f /home/vagrant/flannel.yaml
 
+# using flannel instead, so metalLB is happy =(
+#  - name: Copy the calico config from repo
+#    copy:
+#      src: calico.yaml
+#      dest: /tmp/calico.yaml
+#      mode: 0777
+
+#  - name: create calico folders
+#    become: true
+#    command: mkdir -p /var/lib/calico/
+
+
+#  - name: echo hostname to nodename
+#    become: true
+#    command: echo $HOSTNAME >> /var/lib/calico/nodename
+
+
+#  - name: Install calico pod network
+#    become: false
+#    command: kubectl create -f /tmp/calico.yaml
 
   - name: Generate join command
     command: kubeadm token create --print-join-command
@@ -169,15 +183,47 @@
       dest: /home/vagrant/storageclass.yaml
       mode: 0777
 
+  - name: apply storageclass.yml
+    become: false
+    command: kubectl apply -f /home/vagrant/storageclass.yaml
+
   - name: Copy presistentvolume.yml
     copy:
-      src: storageclass.yaml
+      src: persistentvolume.yaml
       dest: /home/vagrant/persistentvolume.yaml
       mode: 0777
+
+  - name: apply presistentvolume.yml
+    become: false
+    command: kubectl apply -f /home/vagrant/persistentvolume.yaml
+
+  - name: apply metallb namespace
+    become: false
+    command: kubectl apply -f https://raw.githubusercontent.com/google/metallb/v0.9.3/manifests/namespace.yaml
+
+  - name: create metallb secret
+    become: false
+    command: kubectl create secret generic -n metallb-system memberlist --from-literal=secretkey="$(openssl rand -base64 128)"
+
+  - name: create metallb pods
+    become: false
+    command: kubectl apply -f https://raw.githubusercontent.com/google/metallb/v0.9.3/manifests/metallb.yaml
+
+  - name: Copy mllbconfig.yml
+    copy:
+      src: mllbconfig.yaml
+      dest: /home/vagrant/mllbconfig.yaml
+      mode: 0777
+
+  - name: apply mllbconfig.yml
+    become: false
+    command: kubectl apply -f /home/vagrant/mllbconfig.yaml
+
+  - name: apply load-balancer service
+    become: false
+    command: kubectl apply -f https://raw.githubusercontent.com/mvallim/kubernetes-under-the-hood/master/services/kube-service-load-balancer.yaml
 
   handlers:
   - name: docker status
     service: name=docker state=started
-
-
 

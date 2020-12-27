@@ -29,17 +29,17 @@
   - name: add k8s-master to /etc/hosts
     lineinfile:
       path: /etc/hosts
-      line: 192.168.1.170 k8s-master
+      line: 192.168.1.170 k8s-master k8s-master
 
   - name: add node-1 to /etc/hosts
     lineinfile:
       path: /etc/hosts
-      line: 192.168.1.171 node-1
+      line: 192.168.1.171 node-1 node-1
 
   - name: add node-2 to /etc/hosts
     lineinfile:
       path: /etc/hosts
-      line: 192.168.1.172 node-2
+      line: 192.168.1.172 node-2 node-2
 
   - name: Add an apt signing key for Docker
     apt_key:
