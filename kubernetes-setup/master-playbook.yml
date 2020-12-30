@@ -133,22 +133,6 @@
      - cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
      - chown vagrant:vagrant /home/vagrant/.kube/config
 
-  - name:  create folder for persisten volume
-    command: "{{ item }}"
-    with_items:
-     - mkdir -p /home/vagrant/pv1
-     - chmod 777 /home/vagrant/pv1
-
-  - name: copy flannel yaml to the server
-    copy:
-      src: flannel.yaml
-      dest: /home/vagrant/flannel.yaml
-      mode: 0777
-
-  - name: Install flannel
-    become: false
-    command: kubectl create -f /home/vagrant/flannel.yaml
-
 # using flannel instead, so metalLB is happy =(
 #  - name: Copy the calico config from repo
 #    copy:
@@ -176,6 +160,22 @@
 
   - name: Copy join command to local file
     local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./files/join-command"
+
+  - name: copy flannel yaml to the server
+    copy:
+      src: flannel.yaml
+      dest: /home/vagrant/flannel.yaml
+      mode: 0777
+
+  - name: Install flannel
+    become: false
+    command: kubectl create -f /home/vagrant/flannel.yaml
+
+  - name:  create folder for persisten volume
+    command: "{{ item }}"
+    with_items:
+     - mkdir -p /home/vagrant/pv1
+     - chmod 777 /home/vagrant/pv1
 
   - name: Copy storageclass.yml
     copy:
@@ -219,9 +219,35 @@
     become: false
     command: kubectl apply -f /home/vagrant/mllbconfig.yaml
 
-  - name: apply load-balancer service
+  - name: apply redis master 
     become: false
-    command: kubectl apply -f https://raw.githubusercontent.com/mvallim/kubernetes-under-the-hood/master/services/kube-service-load-balancer.yaml
+    command: kubectl apply -f https://k8s.io/examples/application/guestbook/redis-master-deployment.yaml
+
+  - name: apply redis master service
+    become: false
+    command: kubectl apply -f https://k8s.io/examples/application/guestbook/redis-master-service.yaml
+
+  - name: apply redis slave
+    become: false
+    command: kubectl apply -f https://k8s.io/examples/application/guestbook/redis-slave-deployment.yaml
+
+  - name: apply fontend
+    become: false
+    command: kubectl apply -f https://k8s.io/examples/application/guestbook/frontend-deployment.yaml
+
+  - name: Copy guestbookLB.yml
+    copy:
+      src: guestbookLB.yaml
+      dest: /home/vagrant/guestbookLB.yaml
+      mode: 0777
+
+  - name: apply
+    become: false
+    command: kubectl apply -f /home/vagrant/guestbookLB.yaml
+
+  - name: install helm
+    become: false
+    shell: curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
 
   handlers:
   - name: docker status

@@ -125,16 +125,12 @@
 #  - name: Wait until the file join-command is present before continuing
 #    wait_for:
 #      path: join-command
+#    async: 100
+#    poll: 0
 
-  - name: Copy the join command to server location
-    copy: 
-      src: join-command 
-      dest: /tmp/join-command.sh 
-      mode: 0777
-
-  - name: create calico folders
-    become: true
-    command: mkdir -p /var/lib/calico/
+#  - name: create calico folders
+#    become: true
+#    command: mkdir -p /var/lib/calico/
 
   - name:  create folder of persistent volume
     command: "{{ item }}"
@@ -142,9 +138,15 @@
      - mkdir -p /home/vagrant/pv1
      - chmod 777 /home/vagrant/pv1
 
-  - name: echo hostname to calico nodename
-    become: true
-    command: echo $HOSTNAME >> /var/lib/calico/nodename      
+#  - name: echo hostname to calico nodename
+#    become: true
+#    command: echo $HOSTNAME >> /var/lib/calico/nodename      
+
+  - name: Copy the join command to server location
+    copy:
+      src: join-command
+      dest: /tmp/join-command.sh
+      mode: 0777
 
   - name: Join the node to cluster
     command: sh /tmp/join-command.sh
