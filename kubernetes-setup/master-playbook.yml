@@ -221,19 +221,15 @@
 
   - name: apply redis master 
     become: false
-    command: kubectl apply -f https://k8s.io/examples/application/guestbook/redis-master-deployment.yaml
+    command: kubectl apply -f https://k8s.io/examples/application/guestbook/mongo-deployment.yaml
 
   - name: apply redis master service
     become: false
-    command: kubectl apply -f https://k8s.io/examples/application/guestbook/redis-master-service.yaml
+    command: kubectl apply -f https://k8s.io/examples/application/guestbook/mongo-service.yaml
 
   - name: apply redis slave
     become: false
-    command: kubectl apply -f https://k8s.io/examples/application/guestbook/redis-slave-deployment.yaml
-
-  - name: apply fontend
-    become: false
-    command: kubectl apply -f https://k8s.io/examples/application/guestbook/frontend-deployment.yaml
+    command: kubectl apply -f https://k8s.io/examples/application/guestbook/frontend-service.yaml
 
   - name: Copy guestbookLB.yml
     copy:
