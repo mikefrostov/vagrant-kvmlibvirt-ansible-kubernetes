@@ -219,15 +219,19 @@
     become: false
     command: kubectl apply -f /home/vagrant/mllbconfig.yaml
 
-  - name: apply redis master 
+  - name: apply mongo deployment 
     become: false
     command: kubectl apply -f https://k8s.io/examples/application/guestbook/mongo-deployment.yaml
 
-  - name: apply redis master service
+  - name: apply mongo service
     become: false
     command: kubectl apply -f https://k8s.io/examples/application/guestbook/mongo-service.yaml
 
-  - name: apply redis slave
+  - name: apply frontend deployment
+    become: false
+    command: kubectl apply -f https://k8s.io/examples/application/guestbook/frontend-deployment.yaml
+
+  - name: apply frontend svc
     become: false
     command: kubectl apply -f https://k8s.io/examples/application/guestbook/frontend-service.yaml
 
