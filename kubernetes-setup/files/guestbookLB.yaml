@@ -3,8 +3,10 @@ kind: Service
 metadata:
   name: frontend
   labels:
-    app: guestbook
-    tier: frontend
+    app.kubernetes.io/name: guestbook
+    app.kubernetes.io/component: frontend
+#    app: guestbook
+#    tier: frontend
 spec:
   # comment or delete the following line if you want to use a LoadBalancer
   type: LoadBalancer
@@ -14,5 +16,5 @@ spec:
   ports:
   - port: 80
   selector:
-    app: guestbook
-    tier: frontend
+    app.kubernetes.io/name: guestbook
+    app.kubernetes.io/component: frontend
